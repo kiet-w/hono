@@ -4,16 +4,25 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "bun src/index.ts",
-    "dev": "bun --watch src/index.ts"
+    "start": "ts-node src/main.ts",
+    "dev": "ts-node-dev --respawn --transpile-only src/main.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@nestjs/cli": "^11.0.21",
+    "@types/bun": "latest",
+    "@types/express": "^5.0.6",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^6.0.3"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
-    "hono": "^4.12.16"
+    "@nestjs/common": "^11.1.19",
+    "@nestjs/core": "^11.1.19",
+    "@nestjs/platform-express": "^11.1.19",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
   }
 }
