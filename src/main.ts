@@ -1,8 +1,9 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app/app.module';
+import { Hono } from 'hono';
+import { registerRoutes } from './utils/router';
+import { UserController } from './controllers/user.controller';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  await app.listen(3000);
-}
-bootstrap();
+const app = new Hono();
+
+registerRoutes(app, [UserController]);
+
+export default app;
