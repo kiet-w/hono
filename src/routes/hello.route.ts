@@ -1,9 +1,9 @@
 import { Hono } from 'hono'
 import { getHello, postEcho } from '../controllers/hello.controller'
 
-const router = new Hono()
+const helloRoute = new Hono()
 
-router.get('/', getHello)
-router.post('/echo', postEcho)
+helloRoute.get('/', getHello)
+helloRoute.post('/echo', postEcho)
 
-export default router
+export default helloRoute
