@@ -1,11 +1,11 @@
 {
   "name": "hono",
-  "module": "src/index.ts",
+  "module": "src/main.ts",
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "ts-node src/main.ts",
-    "dev": "ts-node-dev --respawn --transpile-only src/main.ts"
+    "start": "bun run src/main.ts",
+    "dev": "bun --watch src/main.ts"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.21",
