@@ -18,5 +18,5 @@
 
 ## Chapter 4: Advanced Real-time & Performance
 - [x] Task 4.1: Redis Provider
-- [ ] Task 4.2: WebSockets Gateway
+- [x] Task 4.2: WebSockets Gateway
 - [ ] Task 4.3: Chapter 4 Wrap-up
