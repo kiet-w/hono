@@ -1,0 +1,36 @@
+### Test Todos API
+
+# @name getAllTodos
+GET http://localhost:3000/todos
+
+###
+
+# @name createTodo
+POST http://localhost:3000/todos
+Content-Type: application/json
+
+{
+  "title": "Học NestJS",
+  "description": "Hoàn thành bài học về Flow và Decorators"
+}
+
+###
+
+# @name getOneTodo
+GET http://localhost:3000/todos/1
+
+###
+
+# @name updateTodo
+PATCH http://localhost:3000/todos/1
+Content-Type: application/json
+
+{
+  "title": "Học NestJS (Đã cập nhật)",
+  "completed": true
+}
+
+###
+
+# @name deleteTodo
+DELETE http://localhost:3000/todos/1
