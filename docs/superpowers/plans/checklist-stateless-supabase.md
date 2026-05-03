@@ -19,4 +19,4 @@
 ## Chapter 4: Advanced Real-time & Performance
 - [x] Task 4.1: Redis Provider
 - [x] Task 4.2: WebSockets Gateway
-- [ ] Task 4.3: Chapter 4 Wrap-up
+- [x] Task 4.3: Chapter 4 Wrap-up (Branch created and pushed: chapter-4)
