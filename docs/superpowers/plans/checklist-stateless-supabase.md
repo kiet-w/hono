@@ -2,9 +2,9 @@
 
 ## Chapter 1: Core Foundation & Global Validation
 - [x] Task 1.1: Install Dependencies
-- [ ] Task 1.2: Centralized Configuration
-- [ ] Task 1.3: Global Validation Pipe
-- [ ] Task 1.4: Chapter 1 Wrap-up
+- [x] Task 1.2: Centralized Configuration
+- [x] Task 1.3: Global Validation Pipe
+- [x] Task 1.4: Chapter 1 Wrap-up
 
 ## Chapter 2: Database Layer (TypeORM & Supabase)
 - [ ] Task 2.1: TypeORM Integration
