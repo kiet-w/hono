@@ -1,4 +1,8 @@
 import 'reflect-metadata';
+// Load dotenv as EARLY as possible to ensure env vars are ready for TypeORM
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';

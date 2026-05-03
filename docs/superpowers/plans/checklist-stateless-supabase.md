@@ -4,10 +4,10 @@
 - [x] Task 1.1: Install Dependencies
 - [x] Task 1.2: Centralized Configuration
 - [x] Task 1.3: Global Validation Pipe
-- [x] Task 1.4: Chapter 1 Wrap-up
+- [x] Task 1.4: Chapter 1 Wrap-up (Local branch created: chapter-1)
 
 ## Chapter 2: Database Layer (TypeORM & Supabase)
-- [ ] Task 2.1: TypeORM Integration
+- [x] Task 2.1: TypeORM Integration
 - [ ] Task 2.2: Todo Entity & Module
 - [ ] Task 2.4: Chapter 2 Wrap-up
 
