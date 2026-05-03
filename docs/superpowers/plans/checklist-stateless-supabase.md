@@ -8,8 +8,8 @@
 
 ## Chapter 2: Database Layer (TypeORM & Supabase)
 - [x] Task 2.1: TypeORM Integration
-- [ ] Task 2.2: Todo Entity & Module
-- [ ] Task 2.4: Chapter 2 Wrap-up
+- [x] Task 2.2: Todo Entity & Module
+- [x] Task 2.4: Chapter 2 Wrap-up
 
 ## Chapter 3: Stateless Authentication & Security
 - [ ] Task 3.1: Supabase JWT Strategy
