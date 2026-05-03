@@ -17,7 +17,7 @@ describe("JwtStrategy", () => {
     const payload = {
       sub: "user-123",
       email: "test@example.com",
-      role: "authenticated"
+      app_metadata: { role: "authenticated" }
     };
 
     const result = await strategy.validate(payload);
