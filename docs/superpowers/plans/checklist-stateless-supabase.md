@@ -13,10 +13,10 @@
 
 ## Chapter 3: Stateless Authentication & Security
 - [x] Task 3.1: Supabase JWT Strategy
-- [ ] Task 3.2: Security Guards & RBAC
-- [ ] Task 3.3: Chapter 3 Wrap-up
+- [x] Task 3.2: Security Guards & RBAC
+- [x] Task 3.3: Chapter 3 Wrap-up (Branch created and pushed: chapter-3)
 
 ## Chapter 4: Advanced Real-time & Performance
-- [ ] Task 4.1: Redis Provider
+- [/] Task 4.1: Redis Provider
 - [ ] Task 4.2: WebSockets Gateway
 - [ ] Task 4.3: Chapter 4 Wrap-up
