@@ -5,6 +5,7 @@ import configuration from './core/config/configuration';
 import { TodosModule } from './modules/todos/todos.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { RedisModule } from './providers/redis/redis.module';
+import { GatewaysModule } from './gateways/gateways.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { RedisModule } from './providers/redis/redis.module';
     TodosModule,
     AuthModule,
     RedisModule,
+    GatewaysModule,
   ],
 })
 export class AppModule {}
