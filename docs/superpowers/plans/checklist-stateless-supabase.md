@@ -12,7 +12,7 @@
 - [x] Task 2.4: Chapter 2 Wrap-up
 
 ## Chapter 3: Stateless Authentication & Security
-- [ ] Task 3.1: Supabase JWT Strategy
+- [x] Task 3.1: Supabase JWT Strategy
 - [ ] Task 3.2: Security Guards & RBAC
 - [ ] Task 3.3: Chapter 3 Wrap-up
 
