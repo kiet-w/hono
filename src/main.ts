@@ -1,9 +1,26 @@
-import { Hono } from 'hono';
-import { registerRoutes } from './utils/router';
-import { UserController } from './controllers/user.controller';
+import 'reflect-metadata';
+// Load dotenv as EARLY as possible to ensure env vars are ready for TypeORM
+import * as dotenv from 'dotenv';
+dotenv.config();
 
-const app = new Hono();
+import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { AppModule } from './app.module';
 
-registerRoutes(app, [UserController]);
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
 
-export default app;
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
+  }));
+
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('port') || 3000;
+
+  await app.listen(port);
+  console.log(`Application is running on: http://localhost:${port}`);
+}
+bootstrap();
