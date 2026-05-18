@@ -59,11 +59,13 @@ export class UsersService {
 
 
   async updateRefreshToken(userId: string, refreshToken: string | null) {
+    await this.prisma.refreshToken.updateMany({
+      where: { userId, isRevoked: false },
+      data: { isRevoked: true },
+    });
+
     if (!refreshToken) {
-      return this.prisma.refreshToken.updateMany({
-        where: { userId, isRevoked: false },
-        data: { isRevoked: true },
-      });
+      return;
     }
 
     const expiresAt = new Date();
