@@ -33,10 +33,18 @@ This project is a NestJS-based e-commerce backend using PostgreSQL as the primar
   - Action: Hashes password, saves user with 'customer' role.
 - `POST /auth/login`
   - Body: `{ email, password }`
-  - Action: Validates credentials, returns `{ access_token }`.
+  - Action: Validates credentials, returns `{ access_token, refresh_token }`.
+- `POST /auth/refresh`
+  - Body: `{ refresh_token }`
+  - Action: Validates refresh token, returns new `{ access_token, refresh_token }`.
+- `GET /auth/me` (Protected)
+  - Headers: `Authorization: Bearer <token>`
+  - Action: Returns current user profile `{ id, email, role }`.
 
 ## 5. Security & Validation
-- **JWT:** Tokens will contain `sub` (user id) and `role`.
+- **JWT:** 
+  - `access_token`: Short-lived (e.g., 15m), contains `sub` and `role`.
+  - `refresh_token`: Long-lived (e.g., 7d), stored in database (hashed) for revocation.
 - **Validation:** Use `class-validator` and `class-transformer` for DTO validation.
 - **Guards:** `JwtAuthGuard` for authenticated routes; `RolesGuard` for role-based access control (RBAC).
 
