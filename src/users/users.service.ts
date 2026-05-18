@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: CreateUserDto) {
+  async create(data: {
+    email: string;
+    passwordHash: string;
+    firstName?: string;
+    lastName?: string;
+  }) {
     return this.prisma.user.create({
       data: {
         email: data.email,
@@ -42,7 +46,13 @@ export class UsersService {
   async findRefreshToken(token: string) {
     return this.prisma.refreshToken.findUnique({
       where: { token },
-      include: { user: true },
+      include: {
+        user: {
+          include: {
+            profile: true,
+          },
+        },
+      },
     });
   }
 

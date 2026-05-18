@@ -5,9 +5,6 @@ import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { JwtPayloadDto } from './dto/jwt-payload.dto';
-import { JwtTokenConfigDto } from './dto/jwt-token-config.dto';
 import { AuthTokensDto } from './dto/auth-tokens.dto';
 
 @Injectable()
@@ -20,9 +17,12 @@ export class AuthService {
 
   async register(registerDto: RegisterDto) {
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-    return this.usersService.create(
-      this.buildCreateUserDto(registerDto, hashedPassword),
-    );
+    return this.usersService.create({
+      email: registerDto.email,
+      passwordHash: hashedPassword,
+      firstName: registerDto.firstName,
+      lastName: registerDto.lastName,
+    });
   }
 
   async login(loginDto: LoginDto) {
@@ -36,7 +36,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return this.generateTokens(user.id, user.email, user.role);
+    return this.generateTokens(user);
   }
 
   async logout(userId: string) {
@@ -49,76 +49,43 @@ export class AuthService {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    return this.generateTokens(tokenData.userId, tokenData.user.email, tokenData.user.role);
+    return this.generateTokens(tokenData.user);
   }
 
-  private async generateTokens(userId: string, email: string, role: string) {
-    const payload = this.buildJwtPayloadDto(userId, email, role);
-    const accessConfig = this.buildJwtTokenConfigDto('JWT_SECRET', '1h');
-    const refreshConfig = this.buildJwtTokenConfigDto('JWT_REFRESH_SECRET', '7d');
+  private async generateTokens(user: {
+    id: string;
+    email: string;
+    role: string;
+    profile?: {
+      firstName?: string | null;
+      lastName?: string | null;
+      avatarUrl?: string | null;
+      phone?: string | null;
+    } | null;
+  }): Promise<AuthTokensDto> {
+    const payload = { sub: user.id, email: user.email, role: user.role };
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        secret: this.configService.get<string>('JWT_SECRET'),
+        expiresIn: '1h' as any,
+      }),
+      this.jwtService.signAsync(payload, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+        expiresIn: '7d' as any,
+      }),
+    ]);
 
-    const accessToken = await this.jwtService.signAsync(
-      { ...payload },
-      {
-        secret: accessConfig.secret,
-        expiresIn: accessConfig.expiresIn as any,
+    await this.usersService.updateRefreshToken(user.id, refreshToken);
+
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      data: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        profile: user.profile ?? null,
       },
-    );
-
-    const refreshToken = await this.jwtService.signAsync(
-      { ...payload },
-      {
-        secret: refreshConfig.secret,
-        expiresIn: refreshConfig.expiresIn as any,
-      },
-    );
-
-    await this.usersService.updateRefreshToken(userId, refreshToken);
-
-    return this.buildAuthTokensDto(accessToken, refreshToken);
-  }
-
-  private buildCreateUserDto(
-    registerDto: RegisterDto,
-    hashedPassword: string,
-  ): CreateUserDto {
-    const createUserDto = new CreateUserDto();
-    createUserDto.email = registerDto.email;
-    createUserDto.passwordHash = hashedPassword;
-    createUserDto.firstName = registerDto.firstName;
-    createUserDto.lastName = registerDto.lastName;
-    return createUserDto;
-  }
-
-  private buildJwtPayloadDto(
-    userId: string,
-    email: string,
-    role: string,
-  ): JwtPayloadDto {
-    const jwtPayloadDto = new JwtPayloadDto();
-    jwtPayloadDto.sub = userId;
-    jwtPayloadDto.email = email;
-    jwtPayloadDto.role = role;
-    return jwtPayloadDto;
-  }
-
-  private buildJwtTokenConfigDto(
-    secretKey: string,
-    expiresIn: string,
-  ): JwtTokenConfigDto {
-    const jwtTokenConfigDto = new JwtTokenConfigDto();
-    jwtTokenConfigDto.secret = this.configService.get<string>(secretKey);
-    jwtTokenConfigDto.expiresIn = expiresIn;
-    return jwtTokenConfigDto;
-  }
-
-  private buildAuthTokensDto(
-    accessToken: string,
-    refreshToken: string,
-  ): AuthTokensDto {
-    const authTokensDto = new AuthTokensDto();
-    authTokensDto.access_token = accessToken;
-    authTokensDto.refresh_token = refreshToken;
-    return authTokensDto;
+    };
   }
 }
