@@ -3,7 +3,12 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 export declare class UsersService {
     private prisma;
     constructor(prisma: PrismaService);
-    create(email: string, passwordHash: string, firstName?: string, lastName?: string): Promise<{
+    create(data: {
+        email: string;
+        passwordHash: string;
+        firstName?: string;
+        lastName?: string;
+    }): Promise<{
         profile: {
             firstName: string | null;
             lastName: string | null;
@@ -60,6 +65,23 @@ export declare class UsersService {
         createdAt: Date;
         updatedAt: Date;
     }) | null>;
+    findRefreshToken(token: string): Promise<({
+        user: {
+            id: string;
+            email: string;
+            password: string;
+            role: import("@prisma/client").$Enums.UserRole;
+            createdAt: Date;
+            updatedAt: Date;
+        };
+    } & {
+        id: string;
+        createdAt: Date;
+        token: string;
+        userId: string;
+        expiresAt: Date;
+        isRevoked: boolean;
+    }) | null>;
     updateProfile(userId: string, data: UpdateProfileDto): Promise<{
         firstName: string | null;
         lastName: string | null;
@@ -73,9 +95,9 @@ export declare class UsersService {
     updateRefreshToken(userId: string, refreshToken: string | null): Promise<import("@prisma/client").Prisma.BatchPayload | {
         id: string;
         createdAt: Date;
-        userId: string;
-        isRevoked: boolean;
         token: string;
+        userId: string;
         expiresAt: Date;
+        isRevoked: boolean;
     }>;
 }

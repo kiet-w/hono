@@ -17,15 +17,15 @@ let UsersService = class UsersService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async create(email, passwordHash, firstName, lastName) {
+    async create(data) {
         return this.prisma.user.create({
             data: {
-                email,
-                password: passwordHash,
+                email: data.email,
+                password: data.passwordHash,
                 profile: {
                     create: {
-                        firstName,
-                        lastName,
+                        firstName: data.firstName,
+                        lastName: data.lastName,
                     },
                 },
             },
@@ -44,6 +44,12 @@ let UsersService = class UsersService {
         return this.prisma.user.findUnique({
             where: { id },
             include: { profile: true },
+        });
+    }
+    async findRefreshToken(token) {
+        return this.prisma.refreshToken.findUnique({
+            where: { token },
+            include: { user: true },
         });
     }
     async updateProfile(userId, data) {
