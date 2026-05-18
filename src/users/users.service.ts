@@ -6,15 +6,20 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async create(email: string, passwordHash: string, firstName?: string, lastName?: string) {
+  async create(data: {
+    email: string;
+    passwordHash: string;
+    firstName?: string;
+    lastName?: string;
+  }) {
     return this.prisma.user.create({
       data: {
-        email,
-        password: passwordHash,
+        email: data.email,
+        password: data.passwordHash,
         profile: {
           create: {
-            firstName,
-            lastName,
+            firstName: data.firstName,
+            lastName: data.lastName,
           },
         },
       },
@@ -35,6 +40,13 @@ export class UsersService {
     return this.prisma.user.findUnique({
       where: { id },
       include: { profile: true },
+    });
+  }
+
+  async findRefreshToken(token: string) {
+    return this.prisma.refreshToken.findUnique({
+      where: { token },
+      include: { user: true },
     });
   }
 
