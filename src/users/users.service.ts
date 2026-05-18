@@ -57,12 +57,7 @@ export class UsersService {
     });
   }
 
-  /**
-   * Manages refresh token entries for a user.
-   * If refreshToken is null, it revokes all active refresh tokens for the user.
-   * If refreshToken is provided, it creates a new RefreshToken entry.
-   * Note: For creation, it assumes a default 7-day expiration if not otherwise specified.
-   */
+
   async updateRefreshToken(userId: string, refreshToken: string | null) {
     if (!refreshToken) {
       return this.prisma.refreshToken.updateMany({

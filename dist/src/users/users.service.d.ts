@@ -77,8 +77,8 @@ export declare class UsersService {
     } & {
         id: string;
         createdAt: Date;
-        token: string;
         userId: string;
+        token: string;
         expiresAt: Date;
         isRevoked: boolean;
     }) | null>;
@@ -95,8 +95,8 @@ export declare class UsersService {
     updateRefreshToken(userId: string, refreshToken: string | null): Promise<import("@prisma/client").Prisma.BatchPayload | {
         id: string;
         createdAt: Date;
-        token: string;
         userId: string;
+        token: string;
         expiresAt: Date;
         isRevoked: boolean;
     }>;

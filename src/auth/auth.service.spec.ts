@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 
 jest.mock('bcrypt');
@@ -12,6 +14,15 @@ describe('AuthService', () => {
   const mockUsersService = {
     create: jest.fn(),
     findOneByEmail: jest.fn(),
+    updateRefreshToken: jest.fn(),
+  };
+
+  const mockJwtService = {
+    signAsync: jest.fn(),
+  };
+
+  const mockConfigService = {
+    get: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -19,6 +30,8 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         { provide: UsersService, useValue: mockUsersService },
+        { provide: JwtService, useValue: mockJwtService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     }).compile();
 
@@ -46,8 +59,10 @@ describe('AuthService', () => {
 
       expect(bcrypt.hash).toHaveBeenCalledWith(registerDto.password, 10);
       expect(usersService.create).toHaveBeenCalledWith({
-        ...registerDto,
-        password: hashedPassword,
+        email: registerDto.email,
+        passwordHash: hashedPassword,
+        firstName: registerDto.firstName,
+        lastName: registerDto.lastName,
       });
       expect(result).toEqual({ id: '1', ...registerDto, password: hashedPassword });
     });
