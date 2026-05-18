@@ -10,36 +10,50 @@ This project is a NestJS-based e-commerce backend using PostgreSQL as the primar
 ## 2. Tech Stack
 - **Framework:** NestJS (v10+)
 - **Language:** TypeScript
-- **Database:** PostgreSQL
-- **ORM:** TypeORM
+- **Database:** Supabase (PostgreSQL)
+- **ORM:** Prisma
 - **Authentication:** Passport.js with JWT Strategy
 - **Security:** Bcrypt for password hashing
 - **Configuration:** `@nestjs/config` for environment variables
 
-## 3. Data Model: User Entity
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `UUID` | Primary Key |
-| `email` | `string` | Unique, primary identifier for login |
-| `password` | `string` | Hashed password |
-| `role` | `enum` | `'customer'` or `'admin'`. Defaults to `'customer'`. |
-| `createdAt` | `Date` | Timestamp of creation |
-| `updatedAt` | `Date` | Timestamp of last update |
+## 3. Data Model: Prisma Schema
+### User
+- `id`: UUID (Primary Key)
+- `email`: String (Unique)
+- `password`: String (Hashed)
+- `role`: Enum (ADMIN, CUSTOMER)
+- `createdAt`: DateTime
+- `updatedAt`: DateTime
+
+### Profile
+- `id`: UUID (Primary Key)
+- `userId`: UUID (Unique, Foreign Key to User)
+- `firstName`: String (Optional)
+- `lastName`: String (Optional)
+- `avatarUrl`: String (Optional)
+- `phone`: String (Optional)
+
+### RefreshToken
+- `id`: UUID (Primary Key)
+- `token`: String (Unique)
+- `userId`: UUID (Foreign Key to User)
+- `expiresAt`: DateTime
+- `isRevoked`: Boolean (Default: false)
 
 ## 4. API Endpoints
 ### Auth Module
-- `POST /auth/register`
-  - Body: `{ email, password }`
-  - Action: Hashes password, saves user with 'customer' role.
-- `POST /auth/login`
-  - Body: `{ email, password }`
-  - Action: Validates credentials, returns `{ access_token, refresh_token }`.
-- `POST /auth/refresh`
-  - Body: `{ refresh_token }`
-  - Action: Validates refresh token, returns new `{ access_token, refresh_token }`.
-- `GET /auth/me` (Protected)
-  - Headers: `Authorization: Bearer <token>`
-  - Action: Returns current user profile `{ id, email, role }`.
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `POST` | `/auth/register` | Create a new user and profile | No |
+| `POST` | `/auth/login` | Authenticate and get JWT tokens | No |
+| `POST` | `/auth/refresh` | Refresh access token using refresh token | No |
+| `POST` | `/auth/logout` | Revoke refresh token | Yes |
+| `GET` | `/auth/me` | Get current user profile | Yes |
+
+### User Module
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `PATCH` | `/users/profile` | Update current user profile | Yes |
 
 ## 5. Security & Validation
 - **JWT:** 
@@ -59,6 +73,7 @@ src/
 │   ├── auth.module.ts
 │   └── auth.service.ts
 ├── users/
+│   ├── dto/
 │   ├── entities/
 │   ├── users.module.ts
 │   └── users.service.ts
@@ -67,3 +82,23 @@ src/
 ├── app.module.ts
 └── main.ts
 ```
+
+## 7. DTO Definitions
+### RegisterDto
+- `email` (string, isEmail, required)
+- `password` (string, minLength: 6, required)
+- `firstName` (string, optional)
+- `lastName` (string, optional)
+
+### LoginDto
+- `email` (string, isEmail, required)
+- `password` (string, required)
+
+### RefreshDto
+- `refreshToken` (string, required)
+
+### UpdateProfileDto
+- `firstName` (string, optional)
+- `lastName` (string, optional)
+- `avatarUrl` (string, isUrl, optional)
+- `phone` (string, optional)
