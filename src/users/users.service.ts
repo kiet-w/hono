@@ -46,7 +46,13 @@ export class UsersService {
   async findRefreshToken(token: string) {
     return this.prisma.refreshToken.findUnique({
       where: { token },
-      include: { user: true },
+      include: {
+        user: {
+          include: {
+            profile: true,
+          },
+        },
+      },
     });
   }
 
@@ -57,13 +63,14 @@ export class UsersService {
     });
   }
 
-
   async updateRefreshToken(userId: string, refreshToken: string | null) {
+    await this.prisma.refreshToken.updateMany({
+      where: { userId, isRevoked: false },
+      data: { isRevoked: true },
+    });
+
     if (!refreshToken) {
-      return this.prisma.refreshToken.updateMany({
-        where: { userId, isRevoked: false },
-        data: { isRevoked: true },
-      });
+      return;
     }
 
     const expiresAt = new Date();

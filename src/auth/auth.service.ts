@@ -5,6 +5,7 @@ import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { AuthTokensDto } from './dto/auth-tokens.dto';
 
 @Injectable()
 export class AuthService {
@@ -35,7 +36,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return this.generateTokens(user.id, user.email, user.role);
+    return this.generateTokens(user);
   }
 
   async logout(userId: string) {
@@ -48,27 +49,43 @@ export class AuthService {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    return this.generateTokens(tokenData.userId, tokenData.user.email, tokenData.user.role);
+    return this.generateTokens(tokenData.user);
   }
 
-  private async generateTokens(userId: string, email: string, role: string) {
-    const payload = { sub: userId, email, role };
+  private async generateTokens(user: {
+    id: string;
+    email: string;
+    role: string;
+    profile?: {
+      firstName?: string | null;
+      lastName?: string | null;
+      avatarUrl?: string | null;
+      phone?: string | null;
+    } | null;
+  }): Promise<AuthTokensDto> {
+    const payload = { sub: user.id, email: user.email, role: user.role };
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        secret: this.configService.get<string>('JWT_SECRET'),
+        expiresIn: '1h' as any,
+      }),
+      this.jwtService.signAsync(payload, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+        expiresIn: '7d' as any,
+      }),
+    ]);
 
-    const accessToken = await this.jwtService.signAsync(payload, {
-      secret: this.configService.get<string>('JWT_SECRET'),
-      expiresIn: '1h',
-    });
-
-    const refreshToken = await this.jwtService.signAsync(payload, {
-      secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-      expiresIn: '7d',
-    });
-
-    await this.usersService.updateRefreshToken(userId, refreshToken);
+    await this.usersService.updateRefreshToken(user.id, refreshToken);
 
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
+      data: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        profile: user.profile ?? null,
+      },
     };
   }
 }
