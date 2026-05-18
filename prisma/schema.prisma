@@ -11,6 +11,41 @@ enum UserRole {
   CUSTOMER
 }
 
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  REFUNDED
+  FAILED
+}
+
+enum PaymentMethod {
+  COD
+  MANUAL
+}
+
+enum InventoryMovementType {
+  STOCK_IN
+  STOCK_OUT
+  ADJUSTMENT
+  ORDER_RESERVED
+  ORDER_RELEASED
+}
+
 model User {
   id            String         @id @default(uuid())
   email         String         @unique
@@ -20,6 +55,11 @@ model User {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   profile       Profile?
+
+  cart               Cart?
+  addresses          Address[]
+  orders             Order[]
+  inventoryMovements InventoryMovement[]
 }
 
 model Profile {
@@ -42,4 +82,150 @@ model RefreshToken {
   expiresAt DateTime
   isRevoked Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String
+  slug        String    @unique
+  description String?
+  parentId    String?
+  parent      Category? @relation("CategoryToCategory", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryToCategory")
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id          String         @id @default(uuid())
+  name        String
+  slug        String         @unique
+  description String?
+  price       Decimal        @db.Decimal(10, 2)
+  status      ProductStatus  @default(DRAFT)
+  categoryId  String
+  category    Category       @relation(fields: [categoryId], references: [id])
+  images      ProductImage[]
+  inventory   Inventory?
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model ProductImage {
+  id        String   @id @default(uuid())
+  url       String
+  sortOrder Int      @default(0)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Inventory {
+  id        String   @id @default(uuid())
+  productId String   @unique
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int      @default(0)
+  reserved  Int      @default(0)
+  threshold Int      @default(5)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model InventoryMovement {
+  id        String                @id @default(uuid())
+  productId String
+  userId    String
+  user      User                  @relation(fields: [userId], references: [id])
+  type      InventoryMovementType
+  quantity  Int
+  reference String? // Order ID or adjustment reason
+  createdAt DateTime              @default(now())
+}
+
+model Cart {
+  id        String     @id @default(uuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  cartId    String
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cartId, productId])
+}
+
+model Address {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  phone     String
+  line1     String
+  line2     String?
+  city      String
+  district  String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id               String        @id @default(uuid())
+  orderNumber      String        @unique
+  userId           String
+  user             User          @relation(fields: [userId], references: [id])
+  status           OrderStatus   @default(PENDING)
+  paymentStatus    PaymentStatus @default(UNPAID)
+  paymentMethod    PaymentMethod @default(COD)
+  shippingName     String
+  shippingPhone    String
+  shippingLine1    String
+  shippingLine2    String?
+  shippingCity     String
+  shippingDistrict String
+  subtotal         Decimal       @db.Decimal(10, 2)
+  shippingFee      Decimal       @db.Decimal(10, 2)
+  discount         Decimal       @db.Decimal(10, 2)
+  grandTotal       Decimal       @db.Decimal(10, 2)
+  promotionCode    String?
+  items            OrderItem[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Promotion {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  discount  Decimal  @db.Decimal(10, 2)
+  isActive  Boolean  @default(true)
+  startDate DateTime
+  endDate   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
