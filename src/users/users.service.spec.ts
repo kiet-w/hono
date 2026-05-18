@@ -2,6 +2,9 @@ import { UsersService } from './users.service';
 
 describe('UsersService', () => {
   const prisma = {
+    user: {
+      create: jest.fn(),
+    },
     refreshToken: {
       updateMany: jest.fn(),
       create: jest.fn(),
@@ -9,8 +12,37 @@ describe('UsersService', () => {
   };
 
   beforeEach(() => {
+    prisma.user.create.mockReset();
     prisma.refreshToken.updateMany.mockReset();
     prisma.refreshToken.create.mockReset();
+  });
+
+  it('creates a user with nested profile data', async () => {
+    prisma.user.create.mockResolvedValue({ id: 'user-1' });
+
+    const service = new UsersService(prisma as any);
+    await service.create({
+      email: 'test@example.com',
+      passwordHash: 'hashed-password',
+      firstName: 'Test',
+      lastName: 'User',
+    });
+
+    expect(prisma.user.create).toHaveBeenCalledWith({
+      data: {
+        email: 'test@example.com',
+        password: 'hashed-password',
+        profile: {
+          create: {
+            firstName: 'Test',
+            lastName: 'User',
+          },
+        },
+      },
+      include: {
+        profile: true,
+      },
+    });
   });
 
   it('revokes active refresh tokens before creating a new one', async () => {

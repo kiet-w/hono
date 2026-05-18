@@ -1,17 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: {
-    email: string;
-    passwordHash: string;
-    firstName?: string;
-    lastName?: string;
-  }) {
+  async create(data: CreateUserDto) {
     return this.prisma.user.create({
       data: {
         email: data.email,
@@ -56,7 +52,6 @@ export class UsersService {
       data,
     });
   }
-
 
   async updateRefreshToken(userId: string, refreshToken: string | null) {
     await this.prisma.refreshToken.updateMany({

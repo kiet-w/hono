@@ -2,3 +2,5 @@ node_modules
 
 /generated/prisma
 .worktrees/
+dist
+node_modules
